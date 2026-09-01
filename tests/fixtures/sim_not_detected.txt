@@ -1,0 +1,19 @@
+CONTROL DEVICES /dev/ttyUSB2
+4G_MAIN_Q: ATI
+4G_MAIN_A:
+NEOWAY
+N720
+V009
+OK
+4G_MAIN_Q: AT+CPIN?
+4G_MAIN_A:
+ERROR
+[name= xsk_CPIN data= ERROR ]
+[name= sim_card data=  ]
+[name= wan_ipaddr data= 0.0.0.0 ]
+[name= DialFinish data= 0 ]
+4G_MAIN_Q: AT+CPIN?
+4G_MAIN_A:
+ERROR
+[name= xsk_CPIN data= ERROR ]
+[name= sim_card data=  ]

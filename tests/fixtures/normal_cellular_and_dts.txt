@@ -1,0 +1,27 @@
+N510M detected,cdc_ncm
+4G_MAIN_Q: ATI
+4G_MAIN_A:
+NEOWAY
+N511
+V005
+OK
+4G_MAIN_Q: AT+CPIN?
+4G_MAIN_A:
++CPIN: READY
+OK
+4G_MAIN_Q: AT+CGATT?
+4G_MAIN_A:
++CGATT: 1
+OK
+[data=wan_ipaddr  value=10.4.106.210]
+attach_check: status = 0, bret = 1, bOld = 1
+wanface=usb0
+DTS App start..
+dcucom=3
+dcu_ip=192.168.2.101, dcu_port=2404
+serial1 baudrate=115200
+databit=8, stopbit=1, parity=0, flowcontrol=0
+south tcp client config connect
+Connecting to 192.168.2.101:2404
+tcp client connect ok
+nv dts_dcu_con_status = 1

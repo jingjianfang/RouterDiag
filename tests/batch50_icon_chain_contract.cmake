@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.16)
+get_filename_component(ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+
+function(read_text rel out)
+    file(READ "${ROOT}/${rel}" txt)
+    set(${out} "${txt}" PARENT_SCOPE)
+endfunction()
+
+function(req rel needle why)
+    read_text("${rel}" txt)
+    string(FIND "${txt}" "${needle}" pos)
+    if(pos EQUAL -1)
+        message(FATAL_ERROR "Batch50 icon-chain contract: ${why} (${rel}: missing '${needle}')")
+    endif()
+endfunction()
+
+req("resources/app_icon.qrc" "app_icon_1024.png" "Qt runtime icon must use embedded PNG so it does not depend on the pruned ICO imageformat plugin")
+req("main.cpp" ":/icons/app_icon_1024.png" "QApplication must load the PNG icon resource at runtime")
+req("main.cpp" "w.setWindowIcon(app.windowIcon())" "MainWindow must explicitly inherit the verified application icon")
+req("package_onefile_release_lite.bat" "set_exe_icon.ps1" "one-file wrapper must receive the product icon after IExpress packaging")
+req("package_onefile_release_lite.bat" "fourfaith_routerdiag.ico" "packaging must feed the same multi-size ICO to the final wrapper")
+req("packaging/set_exe_icon.ps1" "BeginUpdateResource" "icon injector must update the final Windows executable resource table")
+req("packaging/set_exe_icon.ps1" "RT_GROUP_ICON" "icon injector must write a group icon resource")
+req("packaging/set_exe_icon.ps1" "RT_ICON" "icon injector must write individual icon image resources")
+
+req("package_onefile_release_lite.bat" "certutil -hashfile" "final wrapper hash must still be generated after icon injection")
+req("packaging/set_exe_icon.ps1" "FindResource" "icon injector must verify the final PE icon resource")
+message(STATUS "Batch50 icon chain contract passed")

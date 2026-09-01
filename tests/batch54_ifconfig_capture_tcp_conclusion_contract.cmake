@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.16)
+get_filename_component(ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+function(read_file rel out)
+  file(READ "${ROOT}/${rel}" content)
+  set(${out} "${content}" PARENT_SCOPE)
+endfunction()
+function(req hay needle msg)
+  string(FIND "${hay}" "${needle}" pos)
+  if(pos EQUAL -1)
+    message(FATAL_ERROR "Batch54 contract failed: ${msg}: missing [${needle}]")
+  endif()
+endfunction()
+function(forbid hay needle msg)
+  string(FIND "${hay}" "${needle}" pos)
+  if(NOT pos EQUAL -1)
+    message(FATAL_ERROR "Batch54 contract failed: ${msg}: found forbidden [${needle}]")
+  endif()
+endfunction()
+read_file("diagnostic/DeviceDiscoveryController.cpp" DD)
+read_file("capture/PacketCaptureController.cpp" PC)
+read_file("MainWindow.cpp" MW)
+read_file("tests/test_packetcapturecontroller.cpp" TP)
+
+# 网口详情必须来自普通 ifconfig，不混入 -a 的 DOWN/虚拟库存，也不加 WAN 推断标签。
+req("${DD}" "QStringLiteral(\"ifconfig 2>/dev/null\")" "device discovery/details must use ordinary ifconfig")
+forbid("${DD}" "ifconfig -a 2>/dev/null || ifconfig 2>/dev/null" "device details must not enumerate ifconfig -a inventory")
+req("${MW}" "ui->labelWanSummary->hide()" "WAN inference summary must be hidden from interface-details panel")
+req("${MW}" "ui->labelAutoDetectStatus->hide()" "auto-detection summary must be hidden from interface-details panel")
+forbid("${MW}" "WAN接口 · " "interface table state must not mix WAN inference into ifconfig details")
+
+# 抓包前检查必须依赖 TelnetClient 已解析的真实 shell 返回码，不能解析会被串口命令回显污染的文字标记。
+req("${PC}" "lastCommandExitCode()" "capture preflight must use actual shell exit code")
+forbid("${PC}" "__WANDIAG_NO_IFACE__" "preflight must not use echoed NO_IFACE marker")
+forbid("${PC}" "__WANDIAG_CAPTURE_OK__" "preflight must not use echoed success marker")
+req("${TP}" "preflightUsesShellExitCodeInsteadOfEchoedMarkers" "capture preflight regression test must document marker-free behavior")
+
+# 已观察到的 TCP 连接结果要进入综合结论，而不仅存在会话明细/证据中。
+req("${MW}" "TCP结果：" "overall conclusion must include observed TCP connection outcome")
+req("${MW}" "tcpOutcomeSummaries" "TCP outcome summaries must be explicitly collected for the conclusion")
+
+message(STATUS "Batch54 ifconfig/capture/TCP-conclusion contract passed")

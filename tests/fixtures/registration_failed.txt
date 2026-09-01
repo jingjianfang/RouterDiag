@@ -1,0 +1,32 @@
+N510M detected,cdc_ncm
+CONTROL DEVICES /dev/ttyUSB0
+4G_MAIN_Q: ATI
+4G_MAIN_A:
+NEOWAY
+N511
+V005
+OK
+4G_MAIN_Q: AT+CPIN?
+4G_MAIN_A:
++CPIN: READY
+OK
+[name= sim_card data= simok ]
+4G_MAIN_Q: AT+CEREG?
+4G_MAIN_A:
++CEREG: 0,8
+OK
+4G_MAIN_Q: AT+CGREG?
+4G_MAIN_A:
++CGREG: 2,8
+OK
+4G_MAIN_Q: AT+C5GREG?
+4G_MAIN_A:
++C5GREG: 2,4
+OK
++CSQ: 31,99
+mcc[0] = 0
+mnc[0] = 0
+[name= wan_ipaddr data= 0.0.0.0 ]
+[name= DialFinish data= 0 ]
+Connecting to 192.168.3.102:2404
+connect error: Network is unreachable

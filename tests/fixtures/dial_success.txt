@@ -1,0 +1,598 @@
+[USB] checking...
+[wonder]Stop easycwmpd daemon
+[wonder]Stop ubusd daemon
+process_monitor..done
+*** stop services dts
+*** stop services dts
+*** start services dts
+*** services dts ... 
+DTS App start..
+
+=============================================================
+
+nvram parameter:
+
+GPS enable_flag=0
+
+encrypt enable_flag=1, skip_enc=1, up_down_sync=0
+
+------------------
+
+svrcom=5, submodesw=4
+
+north_workmode=1, multi_center_num=1 
+
+remote_ip1=192.168.1.10, remote_port1=2404
+
+remote_ip2=192.168.1.10, remote_port2=23002
+
+keepalive=9
+
+device id=00000000001
+
+custom register pkg=
+
+------------------
+
+dcucom=1
+
+dcu_ip=192.168.1.2, dcu_port=5000
+
+dcu keepalive=9
+
+------------------
+
+serial1 baudrate=9600
+
+databit=8, stopbit=1, parity=0, flowcontrol=0
+
+scan interval=30, max frame=1024, timeout=3
+
+------------------
+
+rcv data out time=3600
+
+=============================================================
+
+nvram val = 1
+
+iret = 12, max_size = 32
+
+iret = 11, max_size = 16
+
+nvram val = 4
+
+nvram val = 1
+
+nvram val = 9600
+
+nvram val = 1
+
+south serial config connect
+
+north tcp server config connect max num: 30
+
+55AA config connect max num: 30
+
+create dev_thread_process_event 
+
+add serial event
+
+create ev:549708D
+
+add event fd 12, ev:549708D
+
+add serial send chain
+
+add to south chain
+
+chain head
+
+----------------------------
+
+fd = 12
+
+----------------------------
+
+lianxun (Variant) (modem mode) detected
+[networking/network.c] start_wan: 111 controldevice=/dev/usb/tts/1
+*** stop services network_app
+[name= wan_ipaddr data= 0.0.0.0 ]
+[name= bkup_wan_ipaddr data= 0.0.0.0 ]
+[name= usecontroldevice data= 1 ]
+MAIN LINK Q: ate0
+MAIN LINK A: 
+
+OK
+
+
+	status_manage:[atinitmodule.c ->10893 ] [val= 1]
+MAIN LINK Q: ATI
+MAIN LINK A: 
+
+LINK
+
+OK
+
+
+MAIN LINK Q: AT+GMI
+MAIN LINK A: 
+
++CME ERROR: 6003
+
+
+*** start services network_app
+*** stop services dts
+MAIN LINK Q: AT+GMI
+MAIN LINK A: 
+
++CME ERROR: 6003
+
+
+*** start services dts
+*** services dts ... 
+MAIN LINK Q: at^hver
+MAIN LINK A: 
+
++HVER: V0.1
+
+
+
+OK
+
+
+MAIN LINK Q: AT+CGMI
+MAIN LINK A: 
+
++CGMI: LINK
+
+
+
+OK
+
+
+MAIN LINK Q: AT+CGMR
+MAIN LINK A: 
+
++CGMR: 7520SDKV1.0.0B04P07-V1.0
+
+
+
+OK
+
+
+lian xun
+
+This is 4G/LTE Module
+[name= dev_type data= F3A27 ]
+[name= 3gmodule data= 65372 ]
+[name= modulename data= LIANXUN ]
+aft set md 65372
+
+MAIN LINK Q: ATE0
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+CGSN
+MAIN LINK A: 
+
++CGSN: "866673036273834"
+
+
+
+OK
+
+
+[name= imei data= 866673036273834 ]
+MAIN LINK Q: AT+CPIN?
+MAIN LINK A: 
+
++CPIN: READY
+
+
+
+OK
+
+
+MAIN LINK Q: AT+CSQ?
+MAIN LINK A: 
+
++CME ERROR: 6003
+
+
+PIN Disable
+
+[name= qcpin data= 0 ]
+[name= sim_card data= simok ]
+	status_manage:[atinitmodule.c ->9808 ] [val= 2]
+MAIN LINK Q: AT+CIMI
+MAIN LINK A: 
+
++CIMI: 460088345106772
+
+
+
+OK
+
+
+[name= imsi data= 460088345106772 ]
+MAIN LINK Q: AT+ZICCID?
+MAIN LINK A: 
+
++ZICCID: 89860813102370496772
+
+
+
+OK
+
+
+[name= iccid data= 89860813102370496772 ]
+ppp new:AT+HVER
+
+MAIN LINK Q: AT+HVER
+MAIN LINK A: 
+
++HVER: V0.1
+
+
+
+OK
+
+
+ppp new:
+
++HVER: V0.1
+
+
+
+OK
+
+
+
+FUNC:AtInit_Module_Net,line:6383,len:11,hver:V0.1
+ppp new:AT+CGMR
+
+MAIN LINK Q: AT+CGMR
+DTS App start..
+
+=============================================================
+
+nvram parameter:
+
+GPS enable_flag=0
+
+encrypt enable_flag=1, skip_enc=1, up_down_sync=0
+
+------------------
+
+svrcom=5, submodesw=4
+
+north_workmode=1, multi_center_num=1 
+
+remote_ip1=192.168.1.10, remote_port1=2404
+
+remote_ip2=192.168.1.10, remote_port2=23002
+
+keepalive=9
+
+device id=00000000001
+
+custom register pkg=
+
+------------------
+
+dcucom=1
+
+dcu_ip=192.168.1.2, dcu_port=5000
+
+dcu keepalive=9
+
+------------------
+
+serial1 baudrate=9600
+
+databit=8, stopbit=1, parity=0, flowcontrol=0
+
+scan interval=30, max frame=1024, timeout=3
+
+------------------
+
+rcv data out time=3600
+
+=============================================================
+
+nvram val = 1
+
+iret = 12, max_size = 32
+
+iret = 11, max_size = 16
+
+nvram val = 4
+
+nvram val = 1
+
+nvram val = 9600
+
+nvram val = 1
+
+south serial config connect
+
+north tcp server config connect max num: 30
+
+55AA config connect max num: 30
+
+create dev_thread_process_event 
+
+add serial event
+
+create ev:685708D
+
+add event fd 10, ev:685708D
+
+add serial send chain
+
+add to south chain
+
+chain head
+
+----------------------------
+
+fd = 10
+
+----------------------------
+
+MAIN LINK A: 
+
++CGMR: 7520SDKV1.0.0B04P07-V1.0
+
+
+
+OK
+
+
+ppp new:
+
++CGMR: 7520SDKV1.0.0B04P07-V1.0
+
+
+
+OK
+
+
+
+FUNC:AtInit_Module_Net,line:6403,len:31,sver:7520SDKV1.0.0B04P07-V1.0
+MAIN LINK Q: AT^SYSCONFIG=2,0,1,2
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: at+zlteband=149,0,0,0,224,1,0,4,0
+MAIN LINK A: 
+
+OK
+
+
+ppp new:AT+ZBAND?
+
+MAIN LINK Q: AT+ZBAND?
+MAIN LINK A: 
+
++ZBAND: 3,39
+
+
+
+OK
+
+
+MAIN LINK Q: AT+SIMSEL=1
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+CFUN=1
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+CGDCONT=1,"IP","CMIOTSQGD.JS"
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+ZGPCOAUTH=1,"card","card",3
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+ZGPCOAUTH?
+MAIN LINK A: 
+
++ZGPCOAUTH: 1,"card",3
+
+
+
+OK
+
+
+MAIN LINK Q: AT+CGDCONT?
+MAIN LINK A: 
+
++CGDCONT: 1,"IP","CMIOTSQGD.JS","0.0.0.0",0,0,0,0,0,0
+
+
+
+OK
+
+
+MAIN LINK Q: AT+CREG=1
+mcc[0] = 0
+mnc[0] = 0
+mc_lac[0] = 0
+cellid[0] = 0
+pci[0] = 0
+arfcn[0] = 0
+csq[dbm] = 99
+rsrp[0x00] = 0
+sinr[0x00] = 0
+module [65372]
+get comm_mnc = 0, isp_tab_cnt = 210
+MAIN LINK A: 
+
+OK
+
+
+MAIN LINK Q: AT+CREG?
+MAIN LINK A: 
+
++CREG: 0,1
+
+
+
+OK
+
+
+MAIN LINK Q: AT$MYSYSINFO?
+MAIN LINK A: 
+
+$MYSYSINFO: 4,01
+
+OK
+
+
+MAIN LINK Q: AT^MONSC
+MAIN LINK A: 
+
+^MONSC: LTE,460,00,38400,111343298,410,20932,-91,-11,-95
+
+OK
+
+
+[name= Pacific_MonscRAC data=  ]
+[name= Pacific_MonscSC data=  ]
+[name= Pacific_MonscSyncID data=  ]
+[name= Pacific_MonscEcIo data=  ]
+[name= Pacific_MonscTA data=  ]
+[name= Pacific_MonscLac data=  ]
+[name= Pacific_MonscBsic data=  ]
+[name= Pacific_arfcn data= 38400 ]
+[name= Pacific_cell_id data= 111343298 ]
+[name= Pacific_MonscPCI data= 410 ]
+[name= Pacific_MonscTAC data= 20932 ]
+[name= band data=  ]
+[name= Pacific_sinr data= -95 ]
+[name= sinr data= -95 ]
+[name= eci data= 4583600792 ]
+[name= rsrp data= -91 ]
+[name= rsrq data= -11 ]
+[name= 5g_rsrp data=  ]
+[name= 5grsrq data=  ]
+[name= 5gsinr data=  ]
+[name= network data= LTE ]
+[name= mc_mcc data= 460 ]
+[name= mc_mnc data= 00 ]
+[name= usecontroldevice data= 0 ]
+	status_manage:[tty.c ->438 ] [val= 1]
+	status_manage:[tty.c ->469 ] [val= 3]
+	status_manage:[tty.c ->708 ] [val= 4]
+MAIN LINK Q: AT
+MAIN LINK A: 
+OK
+
+Baud 0 match
+
+MAIN LINK Q: ATE0
+MAIN LINK A: 
+OK
+
+MAIN LINK Q: AT+CGDCONT=1,"IP","CMIOTSQGD.JS"
+MAIN LINK A: 
+OK
+
+MAIN LINK Q: AT+CSQ
+MAIN LINK A: 
++CSQ: 25,99
+
+OK
+
+[name= dbm data= 25 ]
+MAIN LINK Q: ATD*99***1#
+MAIN LINK A: 
+CONNECT
+
+	status_manage:[sys-linux.c ->418 ] [val= 5]
+Using interface pppd.new ppp0
+Connect: ppp0 <--> /dev/usb/tts/0
+Warning - secret file /tmp/ppp/pap-secrets has world and/or group access
+22--->
+c0 21 01 01 00 14 02 06 00 00 00 00 05 06 eb 77 | .!.............w
+b5 a5 07 02 08 02                               | ......
+<---14
+ff 03 c0 21 01 01 00 0a 05 06 91 31 68 17       | ...!.......1h.
+12--->
+c0 21 02 01 00 0a 05 06 91 31 68 17             | .!.......1h.
+22--->
+c0 21 01 01 00 14 02 06 00 00 00 00 05 06 eb 77 | .!.............w
+b5 a5 07 02 08 02                               | ......
+<---18
+ff 03 c0 21 04 01 00 0e 02 06 00 00 00 00 07 02 | ...!............
+08 02                                           | ..
+12--->
+c0 21 01 02 00 0a 05 06 eb 77 b5 a5             | .!.......w..
+<---14
+ff 03 c0 21 02 02 00 0a 05 06 eb 77 b5 a5       | ...!.......w..
+10--->
+c0 21 09 00 00 08 eb 77 b5 a5                   | .!.....w..
+24--->
+80 21 01 01 00 16 03 06 00 00 00 00 81 06 00 00 | .!..............
+00 00 83 06 00 00 00 00                         | ........
+10--->
+c0 21 09 01 00 08 eb 77 b5 a5                   | .!.....w..
+<---14
+ff 03 80 21 01 01 00 0a 03 06 0a 8c 0a 7f       | ...!..........
+12--->
+80 21 02 01 00 0a 03 06 0a 8c 0a 7f             | .!..........
+24--->
+80 21 01 01 00 16 03 06 00 00 00 00 81 06 00 00 | .!..............
+00 00 83 06 00 00 00 00                         | ........
+<---26
+ff 03 80 21 03 01 00 16 03 06 0a 8c 0c 7f 81 06 | ...!............
+70 04 0c c8 83 06 70 04 01 24                   | p.....p..$
+24--->
+80 21 01 02 00 16 03 06 0a 8c 0c 7f 81 06 70 04 | .!............p.
+0c c8 83 06 70 04 01 24                         | ....p..$
+<---26
+ff 03 80 21 02 02 00 16 03 06 0a 8c 0c 7f 81 06 | ...!............
+70 04 0c c8 83 06 70 04 01 24                   | p.....p..$
+func:main phase:8
+MAIN LINK Q: AT+CGREG?
+MAIN LINK A: 
+
++CGREG: 0,1
+
+
+
+OK
+
+
+[name= easycwmp_roam_status data= 1 ]
+wanface=ppp0
+10--->
+c0 21 09 02 00 08 eb 77 b5 a5                   | .!.....w..
+func:main phase:8
+MAIN LINK Q: AT+CGREG?
+MAIN LINK A: 
+
++CGREG: 0,1
+
+
+
+OK
+
+

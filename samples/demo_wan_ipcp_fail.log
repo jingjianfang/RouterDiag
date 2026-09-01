@@ -1,0 +1,24 @@
+lianxun (Variant) (modem mode) detected
+[name= modulename data= LIANXUN ]
+[name= wan_ipaddr data= 0.0.0.0 ]
+MAIN LINK Q: AT+CPIN?
+MAIN LINK A:
++CPIN: READY
+MAIN LINK Q: AT+CGREG?
+MAIN LINK A:
++CGREG: 0,1
+MAIN LINK Q: AT+CSQ
+MAIN LINK A:
++CSQ: 16,99
+MAIN LINK Q: ATD*99#
+MAIN LINK A:
+CONNECT
+Using interface pppd.new ppp0
+c0 21 01 09 00 14
+c0 21 02 01 00 0a
+80 21 01 03 00 16
+80 21 01 03 00 16
+80 21 01 03 00 16
+process is wan, but wan is not up
+process is wan, but wan is not up
+[name= wan_ipaddr data2= 0.0.0.0 ]

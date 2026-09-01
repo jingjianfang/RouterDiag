@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.16)
+set(ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+file(READ "${ROOT}/MainWindow.ui" UI)
+file(READ "${ROOT}/MainWindow.cpp" CPP)
+
+function(require_contains text needle message)
+  string(FIND "${text}" "${needle}" pos)
+  if(pos EQUAL -1)
+    message(FATAL_ERROR "${message}: missing [${needle}]")
+  endif()
+endfunction()
+
+function(require_not_contains text needle message)
+  string(FIND "${text}" "${needle}" pos)
+  if(NOT pos EQUAL -1)
+    message(FATAL_ERROR "${message}: forbidden [${needle}]")
+  endif()
+endfunction()
+
+require_not_contains("${UI}" "<widget class=\"QLabel\" name=\"labelProductTitle\">" "page-internal product title must be removed")
+require_contains("${CPP}" "ui->labelTerminalModeHint->clear();" "serial mode must hide the visible explanatory hint")
+require_not_contains("${CPP}" "ui->labelTerminalModeHint->setText(tip);" "serial mode must not render the long ttyUSB explanation")
+message(STATUS "Batch22 UI cleanup contract passed")

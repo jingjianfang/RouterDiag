@@ -1,0 +1,16 @@
+FM650 detected
+[name= modulename data= FM650-CN ]
+MAIN LINK Q: AT+CPIN?
+MAIN LINK A:
++CPIN: READY
+4G_MAIN_Q: AT+CGREG?
+4G_MAIN_A:
++CGREG: 2,1
+MAIN LINK Q: AT+CGATT?
+MAIN LINK A:
++CGATT: 1
+MAIN LINK Q: AT+CSQ
+MAIN LINK A:
++CSQ: 25,99
+[name= rsrp data= -71 ]
+[data=wan_ipaddr  value=10.24.187.54]

@@ -1,0 +1,42 @@
+set(ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+function(require_contains path needle)
+  file(READ "${ROOT}/${path}" TEXT)
+  string(FIND "${TEXT}" "${needle}" POS)
+  if(POS EQUAL -1)
+    message(FATAL_ERROR "Batch39: ${path} missing: ${needle}")
+  endif()
+endfunction()
+function(require_not_contains path needle)
+  file(READ "${ROOT}/${path}" TEXT)
+  string(FIND "${TEXT}" "${needle}" POS)
+  if(NOT POS EQUAL -1)
+    message(FATAL_ERROR "Batch39: ${path} must not contain: ${needle}")
+  endif()
+endfunction()
+
+# Real defects revealed by Windows QtTest.
+require_contains("diagnostic/LogAnalyzer.cpp" "s.cpinErrorCount>0 && s.simStatus.isEmpty()")
+require_contains("tests/test_loganalyzer.cpp" "cmeSimNotInsertedGetsSpecificStatus")
+require_contains("diagnostic/ChannelAnalyzer.cpp" "观察到TCP FIN：%1 发起连接释放")
+require_contains("tests/test_channelanalyzer.cpp" "finD.conclusion.contains(\"10.20.30.40:2404\")")
+
+# Current RC13 presentation/capture behavior must not be regressed to stale tests.
+require_contains("tests/test_reportexporter.cpp" "[1] 模组 / SIM / 网络注册")
+require_contains("tests/test_mainwindowui.cpp" "QCOMPARE(layers->rowCount(),4)")
+require_contains("tests/test_fielddiagnosticcontroller.cpp" "((host 90.15.80.82 and icmp) or tcp port 2404)")
+require_contains("tests/test_remotetooldialog.cpp" "QCOMPARE(table->columnCount(),4)")
+require_contains("tests/test_remotetooldialog.cpp" "comboQuickCommandCategoryFilter")
+require_contains("tests/test_remotetooldialog.cpp" "editQuickCommandSearch")
+
+# The old single-line Q_OBJECT style triggered AUTOMOC warnings with Qt 6.8.3.
+file(GLOB QT_TESTS "${ROOT}/tests/test_*.cpp")
+foreach(test_file IN LISTS QT_TESTS)
+  file(READ "${test_file}" TEST_TEXT)
+  string(REGEX MATCH "\\{[ \t]+Q_OBJECT" BAD_QOBJECT "${TEST_TEXT}")
+  if(BAD_QOBJECT)
+    message(FATAL_ERROR "Batch39: ${test_file} still has single-line Q_OBJECT style")
+  endif()
+endforeach()
+
+require_contains("tests/CMakeLists.txt" "test_batch39_windows_qt_regression_contract")
+message(STATUS "Batch39 Windows/Qt regression contract passed")
