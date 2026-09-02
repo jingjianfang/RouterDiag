@@ -1316,6 +1316,18 @@ QLineEdit, QSpinBox, QComboBox {
 }
 QLineEdit:focus, QSpinBox:focus, QComboBox:focus { border: 1px solid #6f9fbe; }
 QLineEdit:disabled, QSpinBox:disabled, QComboBox:disabled { background: #f0f3f5; color: #8997a5; }
+QComboBox QAbstractItemView {
+    background: #ffffff;
+    color: #29445d;
+    border: 1px solid #9bb8cc;
+    border-radius: 5px;
+    outline: 0;
+    selection-background-color: #dcecf8;
+    selection-color: #17324a;
+}
+QComboBox QAbstractItemView::item { min-height: 28px; padding: 3px 8px; background: #ffffff; }
+QComboBox QAbstractItemView::item:hover { background: #edf5fa; }
+QComboBox QAbstractItemView::item:selected { background: #dcecf8; color: #17324a; }
 QPushButton {
     min-height: 30px;
     padding: 0 13px;
@@ -2174,7 +2186,7 @@ void MainWindow::displayDeviceDiscovery(const DeviceDiscoveryResult& result){
     m_lastStatus.moduleProbeCompleted=result.moduleProbeCompleted;
     if(!result.simStatus.isEmpty()){
         m_lastStatus.simStatus=result.simStatus;
-        m_lastStatus.simStatusFromNvram=!result.moduleAtResponsive;
+        m_lastStatus.simStatusFromNvram=result.simStatusFromNvram;
         if(m_lastStatus.simStatus.compare(QStringLiteral("READY"),Qt::CaseInsensitive)==0)m_lastStatus.simCardRaw=QStringLiteral("simok");
     }
     if(result.rsrp!=999)m_lastStatus.rsrp=result.rsrp;
@@ -2205,7 +2217,9 @@ void MainWindow::displayDeviceDiscovery(const DeviceDiscoveryResult& result){
         const QString moduleValue=moduleCardText(result.moduleModel,moduleState);
         setStatusCard(ui->labelCardModule,QStringLiteral("模组"),moduleValue,moduleState);
         QStringList moduleTip;
-        moduleTip<<QStringLiteral("来源：%1").arg(result.moduleAtResponsive?QStringLiteral("AT实时识别"):QStringLiteral("NVRAM快速读取"));
+        moduleTip<<QStringLiteral("来源：%1").arg(result.moduleFromNvram?QStringLiteral("NVRAM优先读取"):QStringLiteral("AT补充识别"));
+        if(result.moduleFromNvram && result.moduleAtResponsive)
+            moduleTip<<QStringLiteral("AT口已响应；NVRAM 已提供模组信息，未用 AT 覆盖显示值");
         if(!result.moduleAtResponsive && result.commModuleStatus>=0)moduleTip<<QStringLiteral("comm_module_status=%1").arg(result.commModuleStatus);
         if(!result.moduleManufacturer.isEmpty())moduleTip<<QStringLiteral("厂商：%1").arg(result.moduleManufacturer);
         if(!result.moduleModel.isEmpty())moduleTip<<QStringLiteral("型号：%1").arg(result.moduleModel);

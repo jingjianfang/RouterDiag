@@ -235,6 +235,9 @@ void RemoteToolDialog::buildUi(const QString& initialTarget)
     setStyleSheet(QStringLiteral(R"QSS(
 QDialog { background:#f4f7fa; color:#26384a; font-family:"Microsoft YaHei UI"; font-size:10pt; }
 QLineEdit,QSpinBox,QComboBox { min-height:31px; background:#fff; border:1px solid #bdcad6; border-radius:6px; padding:0 8px; }
+QComboBox QAbstractItemView { background:#fff; color:#29445d; border:1px solid #9bb8cc; border-radius:5px; outline:0; selection-background-color:#dcecf8; selection-color:#17324a; }
+QComboBox QAbstractItemView::item { min-height:28px; padding:3px 8px; background:#fff; }
+QComboBox QAbstractItemView::item:hover,QComboBox QAbstractItemView::item:selected { background:#dcecf8; color:#17324a; }
 QPushButton { min-height:31px; padding:0 14px; background:#fff; color:#29445d; border:1px solid #b9c7d4; border-radius:6px; font-weight:600; }
 QPushButton:hover { background:#edf4fa; border-color:#7ea5c6; }
 QPushButton#btnRemoteStart { background:#24679b; color:#fff; border-color:#24679b; }

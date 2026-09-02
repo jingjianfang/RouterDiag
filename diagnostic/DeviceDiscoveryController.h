@@ -33,6 +33,10 @@ struct DeviceDiscoveryResult {
     QString moduleManufacturer;
     QString moduleModel;
     QString moduleFirmware;
+    // The fast NVRAM snapshot is the authoritative source for routine status.
+    // AT is only used to fill a value that NVRAM did not provide.
+    bool moduleFromNvram = false;
+    bool simStatusFromNvram = false;
     bool moduleAtResponsive = false;
     bool moduleProbeAttempted = false;
     bool moduleProbeCompleted = false;

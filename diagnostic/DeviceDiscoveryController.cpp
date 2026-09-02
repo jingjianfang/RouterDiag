@@ -496,7 +496,8 @@ QString DeviceDiscoveryController::buildFastNvramCommand()
         "printf 'comm_wan_ipaddr='; nvram get comm_wan_ipaddr; printf 'wan_gateway='; nvram get wan_gateway; "
         "printf 'wan_netmask='; nvram get wan_netmask; printf 'wan_get_dns='; nvram get wan_get_dns; "
         "printf 'wanup='; nvram get wanup; printf 'bkupwanup='; nvram get bkupwanup; "
-        "printf 'current_module_name='; nvram get current_module_name; printf 'submodulename='; nvram get submodulename; "
+        "printf 'current_module_real_name='; nvram get current_module_real_name; printf 'current_module_name='; nvram get current_module_name; "
+        "printf 'modulename='; nvram get modulename; printf 'submodulename='; nvram get submodulename; "
         "printf 'comm_name='; nvram get comm_name; printf 'bkup_current_module_real_name='; nvram get bkup_current_module_real_name; "
         "printf 'bkupmodulename='; nvram get bkupmodulename; printf 'comm_module_status='; nvram get comm_module_status; "
         "printf 'sim_card='; nvram get sim_card; printf 'comm_sim_card='; nvram get comm_sim_card; "
@@ -604,7 +605,9 @@ void DeviceDiscoveryController::handleCommandResult(const QString& command,const
             m_wanIpOutput=fastNvramValue(output,QStringLiteral("wan_ipaddr"));
             m_backupWanIpOutput=fastNvramValue(output,QStringLiteral("bkup_wan_ipaddr"));
             m_commWanIpOutput=fastNvramValue(output,QStringLiteral("comm_wan_ipaddr"));
-            m_nvramCurrentModuleName=fastNvramValue(output,QStringLiteral("current_module_name"));
+            m_nvramCurrentModuleName=fastNvramValue(output,QStringLiteral("current_module_real_name"));
+            if(m_nvramCurrentModuleName.isEmpty())m_nvramCurrentModuleName=fastNvramValue(output,QStringLiteral("current_module_name"));
+            if(m_nvramCurrentModuleName.isEmpty())m_nvramCurrentModuleName=fastNvramValue(output,QStringLiteral("modulename"));
             m_nvramSubmoduleName=fastNvramValue(output,QStringLiteral("submodulename"));
             m_nvramCommName=fastNvramValue(output,QStringLiteral("comm_name"));
             m_nvramFirmware=fastNvramValue(output,QStringLiteral("comm_softver"));
@@ -713,19 +716,12 @@ void DeviceDiscoveryController::runNext()
 {
     if(!m_running) return;
     if(m_phase==Phase::BaseDiscovery){
-        // The route check follows the NVRAM WAN/module inventory. Once it has
-        // completed, a missing WAN stops only the AT-port probing; NVRAM module
-        // identity is still returned immediately instead of being discarded.
+        // NVRAM is authoritative when it has the routine module and SIM values.
+        // A missing WAN must not suppress the AT fallback: "未识别到活动WAN接口"
+        // after a failed dial-up still leaves the modem reachable, and AT is the
+        // only remaining evidence when NVRAM lacks module or SIM status.
         if(m_index<m_commands.size() && m_commands.at(m_index).contains(QStringLiteral("CONTROL DEVICES"))){
-            const DeviceDiscoveryResult base=DeviceDiscoveryParser::buildResult(
-                m_wanIfnameOutput,m_wanIpOutput,m_backupWanIpOutput,m_ifconfigOutput,m_routeOutput,
-                m_backupWanIfnameOutput,m_wanIfname2Output,m_commWanIpOutput,m_usingBackupCard);
-            if(base.wanIfname.isEmpty()){
-                emit progress(QStringLiteral("未识别到活动WAN接口，保留NVRAM模组信息并停止AT探测"));
-                finish();
-                return;
-            }
-            const QString fastModule=m_usingBackupCard?m_nvramBackupModuleName:(!m_nvramCommName.isEmpty()?m_nvramCommName:(!m_nvramSubmoduleName.isEmpty()?m_nvramSubmoduleName:m_nvramCurrentModuleName));
+            const QString fastModule=m_usingBackupCard?m_nvramBackupModuleName:(!m_nvramCurrentModuleName.isEmpty()?m_nvramCurrentModuleName:(!m_nvramCommName.isEmpty()?m_nvramCommName:m_nvramSubmoduleName));
             if(isPlausibleModuleIdentity(fastModule) && !m_nvramSimStatus.isEmpty()){
                 emit progress(QStringLiteral("已从NVRAM快速读取WAN/模组/SIM/信号状态"));
                 finish();
@@ -733,7 +729,7 @@ void DeviceDiscoveryController::runNext()
             }
         }
         if(m_index>=m_commands.size()){
-            const QString fastModule=m_usingBackupCard?m_nvramBackupModuleName:(!m_nvramCommName.isEmpty()?m_nvramCommName:(!m_nvramSubmoduleName.isEmpty()?m_nvramSubmoduleName:m_nvramCurrentModuleName));
+            const QString fastModule=m_usingBackupCard?m_nvramBackupModuleName:(!m_nvramCurrentModuleName.isEmpty()?m_nvramCurrentModuleName:(!m_nvramCommName.isEmpty()?m_nvramCommName:m_nvramSubmoduleName));
             // NVRAM gives the routine status cards immediately. AT remains the fallback
             // when module identity/SIM state is absent or suspicious.
             if(isPlausibleModuleIdentity(fastModule) && !m_nvramSimStatus.isEmpty()){
@@ -778,16 +774,18 @@ void DeviceDiscoveryController::finish()
     result.moduleManufacturer=m_moduleManufacturer;
     QString nvramModule;
     if(m_usingBackupCard && isPlausibleModuleIdentity(m_nvramBackupModuleName))nvramModule=m_nvramBackupModuleName;
+    else if(isPlausibleModuleIdentity(m_nvramCurrentModuleName))nvramModule=m_nvramCurrentModuleName;
     else if(isPlausibleModuleIdentity(m_nvramCommName))nvramModule=m_nvramCommName;
     else if(isPlausibleModuleIdentity(m_nvramSubmoduleName))nvramModule=m_nvramSubmoduleName;
-    else if(isPlausibleModuleIdentity(m_nvramCurrentModuleName))nvramModule=m_nvramCurrentModuleName;
-    result.moduleModel=!m_moduleModel.isEmpty()?m_moduleModel:nvramModule;
+    result.moduleFromNvram=!nvramModule.isEmpty();
+    result.moduleModel=result.moduleFromNvram?nvramModule:m_moduleModel;
     result.nvramFirmware=m_nvramFirmware;
-    result.moduleFirmware=!m_moduleFirmware.isEmpty()?m_moduleFirmware:m_nvramFirmware;
+    result.moduleFirmware=!m_nvramFirmware.isEmpty()?m_nvramFirmware:m_moduleFirmware;
     result.moduleAtResponsive=m_moduleAtResponsive;
     result.moduleProbeAttempted=m_moduleProbeAttempted;
     result.moduleProbeCompleted=m_moduleProbeAttempted;
-    result.simStatus=!m_simStatus.isEmpty()?m_simStatus:m_nvramSimStatus;
+    result.simStatusFromNvram=!m_nvramSimStatus.isEmpty();
+    result.simStatus=result.simStatusFromNvram?m_nvramSimStatus:m_simStatus;
     result.rsrp=m_nvramRsrp;result.sinr=m_nvramSinr;result.usingBackupCard=m_usingBackupCard;result.nvramNetwork=m_nvramNetwork;
     result.commModuleStatus=m_nvramCommModuleStatus;result.commDialStatus=m_nvramCommDialStatus;result.wanUp=m_nvramWanUp;result.backupWanUp=m_nvramBackupWanUp;
     result.cpinRaw=m_cpinRaw;
