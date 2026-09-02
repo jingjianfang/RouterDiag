@@ -65,6 +65,11 @@ private slots:
         QVERIFY(d.findChild<QComboBox*>(QStringLiteral("comboQuickCommandCategoryFilter")));
         QVERIFY(d.findChild<QLineEdit*>(QStringLiteral("editQuickCommandSearch")));
         QVERIFY(d.findChild<QLineEdit*>(QStringLiteral("editRemoteCommandText")));
+        auto* interactive=d.findChild<QCheckBox*>(QStringLiteral("checkInteractiveTerminal"));
+        auto* interactiveInput=d.findChild<QLineEdit*>(QStringLiteral("editInteractiveTerminalInput"));
+        QVERIFY(interactive);QVERIFY(interactiveInput);
+        QVERIFY(!interactive->isChecked());
+        QVERIFY(!interactiveInput->isEnabled());
         QVERIFY(d.findChild<QPushButton*>(QStringLiteral("btnCommandAdd")));
         QVERIFY(d.findChild<QPushButton*>(QStringLiteral("btnCommandEdit")));
         QVERIFY(d.findChild<QPushButton*>(QStringLiteral("btnCommandDelete")));

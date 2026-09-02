@@ -30,6 +30,9 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include <QKeyEvent>
+#include <QPalette>
+#include <QColor>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSaveFile>
@@ -57,6 +60,22 @@ QString settingsApplicationName()
     const QString appName=QCoreApplication::applicationName();
     return appName.startsWith(QStringLiteral("test_"),Qt::CaseInsensitive)
         ?QStringLiteral("WanDiagToolTests"):QStringLiteral("WanDiagTool");
+}
+
+void configureOpaqueComboPopup(QComboBox* combo)
+{
+    if(!combo || !combo->view())return;
+    auto* view=combo->view();
+    QPalette palette=view->palette();
+    palette.setColor(QPalette::Base,QColor(QStringLiteral("#ffffff")));
+    palette.setColor(QPalette::Window,QColor(QStringLiteral("#ffffff")));
+    palette.setColor(QPalette::Text,QColor(QStringLiteral("#29445d")));
+    palette.setColor(QPalette::Highlight,QColor(QStringLiteral("#dcecf8")));
+    palette.setColor(QPalette::HighlightedText,QColor(QStringLiteral("#17324a")));
+    view->setPalette(palette);view->viewport()->setPalette(palette);view->window()->setPalette(palette);
+    view->setAutoFillBackground(true);view->viewport()->setAutoFillBackground(true);
+    view->window()->setAutoFillBackground(true);view->window()->setAttribute(Qt::WA_TranslucentBackground,false);view->window()->setWindowOpacity(1.0);
+    view->setStyleSheet(QStringLiteral("QAbstractItemView{background:#fff;color:#29445d;border:1px solid #9bb8cc;selection-background-color:#dcecf8;selection-color:#17324a;} QAbstractItemView::item{min-height:28px;padding:3px 8px;background:#fff;} QAbstractItemView::item:hover,QAbstractItemView::item:selected{background:#dcecf8;color:#17324a;}"));
 }
 
 void addCommandItem(QComboBox* combo,const QString& name,const QString& command,bool builtin,const QString& note=QString(),const QString& category=QStringLiteral("自定义"))
@@ -102,6 +121,7 @@ RemoteToolDialog::RemoteToolDialog(Mode mode,const RemoteConnectionParams& param
     connect(m_client,&TelnetClient::loginSucceeded,this,[this]{
         m_waitingLogin=false;
         m_status->setText(QStringLiteral("已登录 %1").arg(m_params.host));
+        if(m_interactiveInput && m_interactiveTerminal && m_interactiveTerminal->isChecked())m_interactiveInput->setEnabled(true);
         runPendingAction();
     });
     connect(m_client,&TelnetClient::loginFailed,this,[this](const QString& reason){
@@ -235,6 +255,9 @@ void RemoteToolDialog::buildUi(const QString& initialTarget)
     setStyleSheet(QStringLiteral(R"QSS(
 QDialog { background:#f4f7fa; color:#26384a; font-family:"Microsoft YaHei UI"; font-size:10pt; }
 QLineEdit,QSpinBox,QComboBox { min-height:31px; background:#fff; border:1px solid #bdcad6; border-radius:6px; padding:0 8px; }
+QComboBox QAbstractItemView { background:#fff; color:#29445d; border:1px solid #9bb8cc; border-radius:5px; outline:0; selection-background-color:#dcecf8; selection-color:#17324a; }
+QComboBox QAbstractItemView::item { min-height:28px; padding:3px 8px; background:#fff; }
+QComboBox QAbstractItemView::item:hover,QComboBox QAbstractItemView::item:selected { background:#dcecf8; color:#17324a; }
 QPushButton { min-height:31px; padding:0 14px; background:#fff; color:#29445d; border:1px solid #b9c7d4; border-radius:6px; font-weight:600; }
 QPushButton:hover { background:#edf4fa; border-color:#7ea5c6; }
 QPushButton#btnRemoteStart { background:#24679b; color:#fff; border-color:#24679b; }
@@ -394,6 +417,20 @@ QLabel#labelModuleLogPath { color:#687b8d; font-size:9pt; }
         workspace->addWidget(m_output);
         workspace->setStretchFactor(0,2);workspace->setStretchFactor(1,3);
         root->addWidget(workspace,1);
+        auto* terminalRow=new QHBoxLayout;
+        m_interactiveTerminal=new QCheckBox(QStringLiteral("交互终端（Tab 补全）"),this);m_interactiveTerminal->setObjectName(QStringLiteral("checkInteractiveTerminal"));
+        m_interactiveInput=new QLineEdit(this);m_interactiveInput->setObjectName(QStringLiteral("editInteractiveTerminalInput"));m_interactiveInput->setEnabled(false);
+        m_interactiveInput->setPlaceholderText(QStringLiteral("启用后可直接输入；Tab、方向键、退格和 Enter 会发送到路由器 Shell"));
+        terminalRow->addWidget(m_interactiveTerminal);terminalRow->addWidget(m_interactiveInput,1);root->addLayout(terminalRow);
+        m_interactiveInput->installEventFilter(this);
+        connect(m_interactiveTerminal,&QCheckBox::toggled,this,[this](bool enabled){
+            if(!enabled){m_interactiveInput->setEnabled(false);return;}
+            const auto answer=QMessageBox::warning(this,QStringLiteral("启用交互终端"),QStringLiteral("交互终端会把按键直接发送到路由器 Shell，快捷键和 Tab 补全由设备处理。请仅在确认设备与命令安全时使用。"),QMessageBox::Yes|QMessageBox::No,QMessageBox::No);
+            if(answer!=QMessageBox::Yes){m_interactiveTerminal->setChecked(false);return;}
+            if(m_client->isConnected()){m_interactiveInput->setEnabled(true);m_interactiveInput->setFocus();return;}
+            m_status->setText(QStringLiteral("正在连接交互终端 %1:%2...").arg(m_params.host).arg(m_params.port));
+            m_client->connectToHost(m_params.host,m_params.port);
+        });
         QSettings settings(QStringLiteral("FourFaith"),settingsApplicationName());
         const QByteArray state=settings.value(QStringLiteral("workspace/commandSplitter")).toByteArray();
         if(state.isEmpty()||!workspace->restoreState(state))workspace->setSizes({230,300});
@@ -407,6 +444,7 @@ QLabel#labelModuleLogPath { color:#687b8d; font-size:9pt; }
         new DetachablePanelManager(m_output,panelTitle,panelKey,this);
     }
 
+    for(QComboBox* combo:findChildren<QComboBox*>())configureOpaqueComboPopup(combo);
     connect(m_start,&QPushButton::clicked,this,[this]{ensureConnectedAndRun();});
     connect(m_stop,&QPushButton::clicked,this,[this]{
         m_actionPending=false;m_waitingLogin=false;m_moduleLogSetupState=ModuleLogSetupState::Idle;
@@ -418,6 +456,29 @@ QLabel#labelModuleLogPath { color:#687b8d; font-size:9pt; }
         m_status->setText(QStringLiteral("已断开"));m_start->setEnabled(true);
         updateModuleLogRuntimeLabel();
     });
+}
+
+bool RemoteToolDialog::eventFilter(QObject* watched,QEvent* event)
+{
+    if(watched!=m_interactiveInput || !m_interactiveTerminal || !m_interactiveTerminal->isChecked() || event->type()!=QEvent::KeyPress)
+        return QDialog::eventFilter(watched,event);
+    auto* key=static_cast<QKeyEvent*>(event);
+    if(!m_client->isConnected() || m_client->isBusy()){m_status->setText(QStringLiteral("交互终端尚未就绪"));return true;}
+    QByteArray bytes;
+    switch(key->key()){
+    case Qt::Key_Return: case Qt::Key_Enter: bytes="\r";m_interactiveInput->clear();break;
+    case Qt::Key_Tab: bytes="\t";break;
+    case Qt::Key_Backspace: bytes="\x7f";break;
+    case Qt::Key_Left: bytes="\x1b[D";break;
+    case Qt::Key_Right: bytes="\x1b[C";break;
+    case Qt::Key_Up: bytes="\x1b[A";break;
+    case Qt::Key_Down: bytes="\x1b[B";break;
+    default: bytes=key->text().toLocal8Bit();break;
+    }
+    if(bytes.isEmpty())return true;
+    m_client->writeRaw(bytes);
+    return key->key()==Qt::Key_Return || key->key()==Qt::Key_Enter || key->key()==Qt::Key_Tab ||
+           key->key()==Qt::Key_Left || key->key()==Qt::Key_Right || key->key()==Qt::Key_Up || key->key()==Qt::Key_Down;
 }
 
 void RemoteToolDialog::ensureConnectedAndRun()
