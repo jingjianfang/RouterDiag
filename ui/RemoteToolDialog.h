@@ -6,6 +6,7 @@
 class TelnetClient;
 class QCheckBox;
 class QComboBox;
+class QEvent;
 class QFile;
 class QLabel;
 class QLineEdit;
@@ -33,6 +34,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent* event) override;
+    bool eventFilter(QObject* watched,QEvent* event) override;
 
 private:
     void buildUi(const QString& initialTarget);
@@ -72,6 +74,8 @@ private:
     QLineEdit* m_commandSearch=nullptr;
     QTableWidget* m_commandTable=nullptr;
     QLineEdit* m_commandText=nullptr;
+    QLineEdit* m_interactiveInput=nullptr;
+    QCheckBox* m_interactiveTerminal=nullptr;
     QPlainTextEdit* m_output=nullptr;
     QPushButton* m_start=nullptr;
     QPushButton* m_stop=nullptr;

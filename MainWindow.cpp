@@ -20,6 +20,7 @@
 #include "ui/CaptureSessionWidget.h"
 
 #include <QComboBox>
+#include <QPalette>
 #include <QCoreApplication>
 #include <QEventLoop>
 #include <QPlainTextEdit>
@@ -294,6 +295,7 @@ MainWindow::MainWindow(QWidget* parent)
     statusBar()->addPermanentWidget(m_globalStopDiagnosisButton);
     connect(m_globalStopDiagnosisButton,&QPushButton::clicked,this,&MainWindow::cancelOneClickDiagnosis);
     applyProfessionalStyle();
+    configureOpaqueComboPopups();
     ui->centralwidget->setProperty("responsiveLayoutMode",QString());
     reflowResponsiveLayout(width());
 
@@ -1274,6 +1276,7 @@ QMainWindow, QWidget#centralwidget {
     font-family: "Microsoft YaHei UI";
     font-size: 10pt;
 }
+
 QScrollArea, QScrollArea > QWidget > QWidget { background: transparent; border: none; }
 QFrame { border: none; background: transparent; }
 QGroupBox {
@@ -1425,6 +1428,34 @@ QToolTip { background: #263746; color: #ffffff; border: none; padding: 5px 7px; 
     ui->txtStats->setPlainText(QStringLiteral("总包数：0\n总字节：0\n\nTCP：0\nUDP：0\nICMP：0\n\nTCP会话：0"));
 }
 
+void MainWindow::configureOpaqueComboPopups()
+{
+    const QString popupStyle=QStringLiteral(
+        "QAbstractItemView { background-color:#ffffff; color:#29445d; border:1px solid #9bb8cc; "
+        "selection-background-color:#dcecf8; selection-color:#17324a; outline:0; } "
+        "QAbstractItemView::item { min-height:28px; padding:3px 8px; background-color:#ffffff; } "
+        "QAbstractItemView::item:hover, QAbstractItemView::item:selected { background-color:#dcecf8; color:#17324a; }");
+    for(QComboBox* combo:findChildren<QComboBox*>()){
+        if(!combo || !combo->view())continue;
+        QAbstractItemView* view=combo->view();
+        QPalette palette=view->palette();
+        palette.setColor(QPalette::Base,QColor(QStringLiteral("#ffffff")));
+        palette.setColor(QPalette::Window,QColor(QStringLiteral("#ffffff")));
+        palette.setColor(QPalette::Text,QColor(QStringLiteral("#29445d")));
+        palette.setColor(QPalette::Highlight,QColor(QStringLiteral("#dcecf8")));
+        palette.setColor(QPalette::HighlightedText,QColor(QStringLiteral("#17324a")));
+        view->setPalette(palette);
+        view->setStyleSheet(popupStyle);
+        view->setAutoFillBackground(true);
+        view->viewport()->setPalette(palette);
+        view->viewport()->setAutoFillBackground(true);
+        QWidget* popup=view->window();
+        popup->setPalette(palette);
+        popup->setAutoFillBackground(true);
+        popup->setAttribute(Qt::WA_TranslucentBackground,false);
+        popup->setWindowOpacity(1.0);
+    }
+}
 void MainWindow::log(const QString& s){
     ui->txtDiagnosis->appendPlainText(QStringLiteral("[%1] %2").arg(QTime::currentTime().toString("HH:mm:ss"),s));
 }
@@ -3631,6 +3662,7 @@ void MainWindow::setupRc13Workspace()
     auto* search=new QLineEdit(filterBar);search->setObjectName(QStringLiteral("editCaptureQuickSearch"));search->setPlaceholderText(QStringLiteral("搜索 IP / 端口 / Info / HEX"));
     filterLayout->addWidget(new QLabel(QStringLiteral("快速过滤"),filterBar));filterLayout->addWidget(kind);filterLayout->addWidget(search,1);
     if(auto* v=qobject_cast<QVBoxLayout*>(ui->tabRealtimeCapture->layout()))v->insertWidget(2,filterBar);
+    configureOpaqueComboPopups();
     connect(kind,qOverload<int>(&QComboBox::currentIndexChanged),this,[this](int){refreshCaptureQuickFilter();});
     connect(search,&QLineEdit::textChanged,this,[this](const QString&){refreshCaptureQuickFilter();});
 

@@ -123,6 +123,7 @@ private:
     bool controlCommandBusy() const;
     void displayDeviceDiscovery(const DeviceDiscoveryResult& result);
     void applyProfessionalStyle();
+    void configureOpaqueComboPopups();
     void reflowResponsiveLayout(int width);
     bool routerSerialMode() const;
     bool captureTransportReady() const;
